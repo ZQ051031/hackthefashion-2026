@@ -81,6 +81,7 @@ function updateControls() {
   $('generate').disabled = !ready || preparing > 0 || busy;
   $('sample').disabled = preparing > 0 || busy;
   $('sample').hidden = mode !== 'mock';
+  for (const card of $('catalog').children) card.setAttribute('aria-disabled', busy && mode === 'live');
 }
 
 function changeProduct(item) {
@@ -219,7 +220,12 @@ void detectMode();
 
 $('catalog').addEventListener('click', (event) => {
   const link = event.target.closest('[data-product]');
-  if (!link || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
+  if (!link) return;
+  if (link.getAttribute('aria-disabled') === 'true') {
+    event.preventDefault();
+    return;
+  }
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button !== 0) return;
   event.preventDefault();
   const item = products.find(({ id }) => id === link.dataset.product);
   history.pushState(null, '', productUrl(item));
@@ -228,7 +234,9 @@ $('catalog').addEventListener('click', (event) => {
 });
 window.addEventListener('popstate', () => {
   const item = currentProduct();
-  if (item !== product) changeProduct(item);
+  if (item === product) return;
+  if (busy && mode === 'live') history.replaceState(null, '', productUrl(product, location.hash));
+  else changeProduct(item);
 });
 $('size-options').addEventListener('click', (event) => {
   if (!event.target.dataset.size) return;

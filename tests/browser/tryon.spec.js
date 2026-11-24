@@ -69,3 +69,33 @@ test('mobile shopper selects a catalog product and can upload a custom garment',
   await expect(page.locator('#result-mode')).toHaveText('DEMO / MOCK');
   await expect(page.getByRole('img', { name: 'Original photo' })).toBeVisible();
 });
+
+test('a live result stays on its product while catalog navigation is locked', async ({ page }) => {
+  await page.route('**/api/status', (route) => route.fulfill({ json: { mode: 'live' } }));
+  const responseGate = Promise.withResolvers();
+  const fixture = fileURLToPath(new URL('../../public/garments/tee.png', import.meta.url));
+  await page.route('**/api/tryon', async (route) => {
+    await responseGate.promise;
+    await route.fulfill({ path: fixture, contentType: 'image/png' });
+  });
+  await page.goto('/');
+  await page.getByRole('link', { name: /Weekend Hoodie/ }).click();
+  await page.locator('#person-file').setInputFiles(fixture);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: 'Generate try-on' }).click();
+  const denim = page.getByRole('link', { name: /Studio Denim Jacket/ });
+  await expect(denim).toBeDisabled();
+  await expect(page.locator('#garment-choice')).toBeDisabled();
+  await denim.click({ force: true });
+  await expect(page.getByRole('heading', { name: 'Weekend Hoodie' })).toBeVisible();
+  await page.evaluate(() => new Promise((resolve) => {
+    window.addEventListener('popstate', () => resolve(), { once: true });
+    history.back();
+  }));
+  await expect(page).toHaveURL(/product=weekend-hoodie/);
+  await expect(page.getByRole('heading', { name: 'Weekend Hoodie' })).toBeVisible();
+  responseGate.resolve();
+  await expect(page.locator('#result-mode')).toHaveText('Clothsy AI result');
+  await denim.click();
+  await expect(page.getByRole('heading', { name: 'Studio Denim Jacket' })).toBeVisible();
+});
