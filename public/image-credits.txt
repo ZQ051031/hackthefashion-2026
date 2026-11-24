@@ -1,0 +1,21 @@
+Mirrorroom product photo credits
+
+Product photos were cropped and their backgrounds removed. Names, prices, and sizes are fictional.
+
+denim.png: Jean jacket.jpg, NikosLikomitros, CC0.
+https://commons.wikimedia.org/wiki/File:Jean_jacket.jpg
+https://creativecommons.org/publicdomain/zero/1.0/
+
+hoodie.png: Hoodie m7agar.jpg, YoussefTahoun, CC0.
+https://commons.wikimedia.org/wiki/File:Hoodie_m7agar.jpg
+https://creativecommons.org/publicdomain/zero/1.0/
+
+bomber.png: MA-1 Jacket in petrol.jpg, Spuggie, CC BY 2.5.
+https://commons.wikimedia.org/wiki/File:MA-1_Jacket_in_petrol.jpg
+https://creativecommons.org/licenses/by/2.5/
+
+tee.png: Red-t-shirt-.jpg, 66saeedz, CC BY-SA 4.0. The cropped PNG uses the same license.
+https://commons.wikimedia.org/wiki/File:Red-t-shirt-.jpg
+https://creativecommons.org/licenses/by-sa/4.0/
+
+The demo model is an original illustration of a fictional adult.
