@@ -253,7 +253,7 @@ $('catalog').addEventListener('click', (event) => {
 window.addEventListener('popstate', () => {
   const item = currentProduct();
   if (item === product) return;
-  if (busy && mode === 'live') history.replaceState(null, '', productUrl(product, location.hash));
+  if (busy && mode === 'live') history.pushState(null, '', productUrl(product, location.hash));
   else changeProduct(item);
 });
 $('size-options').addEventListener('click', (event) => {

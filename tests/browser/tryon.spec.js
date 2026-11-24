@@ -79,6 +79,7 @@ test('a live result stays on its product while catalog navigation is locked', as
     await route.fulfill({ path: fixture, contentType: 'image/png' });
   });
   await page.goto('/');
+  const originalUrl = page.url();
   await page.getByRole('link', { name: /Weekend Hoodie/ }).click();
   await page.locator('#person-file').setInputFiles(fixture);
   await page.getByRole('checkbox').check();
@@ -96,6 +97,12 @@ test('a live result stays on its product while catalog navigation is locked', as
   await expect(page.getByRole('heading', { name: 'Weekend Hoodie' })).toBeVisible();
   responseGate.resolve();
   await expect(page.locator('#result-mode')).toHaveText('Clothsy AI result');
+  await expect(denim).toBeEnabled();
+  await page.goBack();
+  await expect(page).toHaveURL(originalUrl);
+  await expect(page.getByRole('heading', { name: 'Studio Denim Jacket' })).toBeVisible();
+  await page.goForward();
+  await expect(page.getByRole('heading', { name: 'Weekend Hoodie' })).toBeVisible();
   await denim.click();
   await expect(page.getByRole('heading', { name: 'Studio Denim Jacket' })).toBeVisible();
 });
