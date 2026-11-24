@@ -2,7 +2,7 @@
 
 **HackTheFashion Global ’26 · Try-On Commerce**
 
-[Open the free GitHub Pages demo](https://zq051031.github.io/hackthefashion-2026/) · No account or key needed
+[GitHub Pages demo URL](https://zq051031.github.io/hackthefashion-2026/) · No account or key needed once Pages is enabled
 
 Mirrorroom puts the fitting room on the product page. Shoppers can see a garment on their own photo and check its size chart before deciding what to buy. The visualization helps with styling; the measurements help with sizing. Neither is a guarantee of fit. The catalog and prices are illustrative; there is no checkout or payment.
 
@@ -41,7 +41,7 @@ The server uses the official `clothsy-ai` SDK. It uploads both images with `imag
 
 ### GitHub Pages
 
-`npm run build:pages` generates a static build in `dist/` for `/hackthefashion-2026/`. Publish the contents of `dist/` (including `.nojekyll`) from the root of the `gh-pages` branch. Pages cannot run Node, so the hosted app is intentionally **DEMO / MOCK** even if you have a key locally. No paid hosting is required.
+`npm run build:pages` generates a static build in `dist/` for `/hackthefashion-2026/`. The build is pushed to the root of the `gh-pages` branch, including `.nojekyll`. A repository admin can activate it in **Settings → Pages → Build and deployment**: choose **Deploy from a branch**, select **gh-pages / (root)**, and save. Pages cannot run Node, so the hosted app is intentionally **DEMO / MOCK** even if you have a key locally. No paid hosting is required.
 
 ### Safety & privacy
 
