@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#faf7f4">
+    <meta name="description" content="Mirrorroom is a virtual fitting room. Try clothes on your own photo and find your size before you decide.">
+    <link rel="icon" href="/mirror.svg" type="image/svg+xml">
+    <title>Mirrorroom — The digital fitting room</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="wordmark" href="#main" aria-label="Mirrorroom home"><img src="/mirror.svg" alt="" width="34" height="34">mirrorroom<span>.</span></a>
+        <nav aria-label="Main navigation"><a href="#collection">Collection</a><a href="#studio">Fitting room <span aria-hidden="true">↗</span></a></nav>
+        <div class="badge" id="mode-badge"><i></i> Checking mode</div>
+      </div>
+    </header>
+    <main id="main" class="wrap">
+      <section class="product-section" aria-labelledby="product-name">
+        <p class="breadcrumb"><a href="#collection">The collection</a><span aria-hidden="true">/</span><span id="breadcrumb-category">Outerwear</span><span aria-hidden="true">/</span><span id="breadcrumb-product">Studio Denim Jacket</span></p>
+        <div class="product-grid">
+          <div class="product-art" id="product-art">
+            <span class="art-label">THE MIRRORROOM EDIT</span>
+            <img id="product-image" alt="" width="560" height="420">
+            <span class="art-count" id="product-counter">01 / 04</span>
+          </div>
+          <div class="product-copy">
+            <p class="eyebrow"><span aria-hidden="true">✦</span> THE DIGITAL FITTING ROOM</p>
+            <h1 id="product-name">Studio Denim Jacket</h1>
+            <div class="price-row"><strong id="product-price">$88</strong><span>USD</span></div>
+            <p id="product-description"></p>
+            <div class="color-row"><span class="swatch" id="product-swatch"></span><span id="product-color"></span></div>
+            <div class="size-top"><span>SELECT SIZE</span><button class="text-button" id="open-guide" type="button">Find my size <span aria-hidden="true">↗</span></button></div>
+            <div class="sizes" id="size-options" role="group" aria-label="Select size"></div>
+            <a class="button primary" href="#studio"><span aria-hidden="true">✦</span> Try it on <span class="arrow" aria-hidden="true">↗</span></a>
+            <p class="hero-note"><span aria-hidden="true">◈</span> Preview it on your photo before you decide.</p>
+          </div>
+        </div>
+      </section>
+      <section class="studio" id="studio" aria-labelledby="studio-title">
+        <header class="studio-header">
+          <div><p class="eyebrow"><span aria-hidden="true">✦</span> YOUR PRIVATE FITTING ROOM</p><h2 id="studio-title">See it on you.</h2></div>
+          <div class="studio-mode"><span class="badge" id="studio-badge"><i></i> Checking mode</span><p id="mode-explanation">Checking whether Clothsy is connected…</p></div>
+        </header>
+        <div class="studio-grid">
+          <form id="tryon-form">
+            <fieldset id="tryon-fields">
+              <div class="step">
+                <span class="step-number" aria-hidden="true">1</span>
+                <div class="step-body">
+                  <label class="step-title" for="person-file">Upload your photo</label>
+                  <p class="step-hint">Face the camera in good light, with your shoulders and torso visible.</p>
+                  <label class="upload"><input id="person-file" type="file" accept="image/jpeg,image/png"><span aria-hidden="true">↑</span> <span id="person-name">Choose a photo</span></label>
+                  <button class="text-button sample-button" id="sample" type="button" disabled>Use illustrated demo model</button>
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number" aria-hidden="true">2</span>
+                <div class="step-body">
+                  <label class="step-title" for="garment-choice">Choose a garment</label>
+                  <select id="garment-choice" aria-label="Catalog garment or upload"></select>
+                  <div id="custom-garment" hidden>
+                    <label class="upload"><input id="garment-file" type="file" accept="image/jpeg,image/png"><span aria-hidden="true">↑</span> <span id="garment-name">Choose a garment photo</span></label>
+                    <p class="step-hint">Use a flat, front-facing photo on a plain background.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="step">
+                <span class="step-number" aria-hidden="true">3</span>
+                <div class="step-body">
+                  <h3 class="step-title">See it on you</h3>
+                  <label class="consent"><input id="consent" type="checkbox" required><span>I have consent from any adult pictured. No minors, explicit images, or deceptive use.</span></label>
+                  <button class="button generate" id="generate" type="submit" disabled><span aria-hidden="true">✦</span> Generate try-on <span class="arrow" aria-hidden="true">→</span></button>
+                </div>
+              </div>
+            </fieldset>
+            <p class="form-message" id="form-status" role="status"></p>
+          </form>
+          <div class="preview">
+            <div class="preview-top"><strong>TRY-ON PREVIEW</strong><span id="result-mode">No result yet</span></div>
+            <div class="preview-stage" id="preview-stage">
+              <div class="placeholder" id="placeholder"><span aria-hidden="true">✧</span><strong>Your mirror awaits</strong><p>Generate a try-on to compare<br>your before and after.</p></div>
+              <div class="comparison" id="comparison" hidden>
+                <img id="after-image" alt="Try-on result">
+                <img id="before-image" alt="Original photo">
+                <div class="divider" aria-hidden="true"><span>↔</span></div>
+                <span class="comparison-label before-label">Before</span><span class="comparison-label after-label">After</span>
+              </div>
+            </div>
+            <div class="preview-actions" id="preview-actions" hidden>
+              <label class="slider-label" for="compare">Drag to compare</label>
+              <input id="compare" type="range" min="0" max="100" value="50">
+              <div class="action-row"><button class="button secondary" id="download" type="button">↓ Save PNG</button><button class="button secondary" id="share" type="button">↗ Share result</button></div>
+              <p id="share-status" role="status"></p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="collection" id="collection" aria-labelledby="collection-title">
+        <p class="eyebrow"><span aria-hidden="true">✦</span> A SMALL COLLECTION, BIG POSSIBILITIES</p>
+        <h2 id="collection-title">Explore the edit.</h2>
+        <div class="cards" id="catalog"></div>
+      </section>
+    </main>
+    <footer class="site-footer"><div class="wrap footer-inner"><strong>mirrorroom.</strong><span>HackTheFashion Global ’26 · Try-On Commerce · <a href="%BASE_URL%image-credits.txt">Image credits</a></span></div></footer>
+    <dialog id="size-guide" aria-labelledby="guide-title">
+      <div class="dialog-top"><p class="eyebrow">FIT &amp; SIZE GUIDANCE</p><form method="dialog"><button class="close" aria-label="Close size guide">×</button></form></div>
+      <h2 id="guide-title">Find my size</h2>
+      <p id="guide-product"></p>
+      <p>Wrap a tape around the fullest part of your chest. Enter that measurement in centimeters.</p>
+      <form id="size-form">
+        <div class="guide-fields">
+          <label>Chest (cm)<input id="chest" type="number" min="50" max="180" step="0.1" inputmode="decimal" placeholder="e.g. 96" required></label>
+          <label>Fit preference<select id="fit"><option value="regular">Regular</option><option value="close">Close</option><option value="roomy">Roomy / layered</option></select></label>
+        </div>
+        <button class="button primary" type="submit">Recommend a size <span class="arrow" aria-hidden="true">→</span></button>
+      </form>
+      <p id="size-result" role="status"></p>
+      <button class="text-button" id="apply-size" type="button" hidden>Use recommended size ↗</button>
+      <details><summary>View garment measurements</summary><table><thead><tr><th scope="col">Size</th><th scope="col">Garment chest (cm)</th></tr></thead><tbody id="size-chart"></tbody></table></details>
+      <p class="guide-note">This is a chart-based estimate, not a measurement from your photo or a guarantee of fit.</p>
+    </dialog>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
