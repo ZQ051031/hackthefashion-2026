@@ -165,6 +165,23 @@ function listenForUpload(input, useFile) {
   });
 }
 
+async function followLiveJob(pollUrl) {
+  $('form-status').textContent = 'Clothsy is still working on your try-on. Keep this page open while we check its status…';
+  for (;;) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    let response;
+    try {
+      response = await fetch(pollUrl, { signal: AbortSignal.timeout(55_000) });
+      if (response.ok && response.headers.get('content-type')?.startsWith('image/')) return await response.blob();
+    } catch {
+      continue;
+    }
+    if (response.status === 202 || response.status === 429 || response.status >= 500) continue;
+    const body = await response.json().catch(() => null);
+    throw new Error(body?.message || 'The status of this try-on is no longer available.');
+  }
+}
+
 async function requestLive(photo, choice, custom) {
   const data = new FormData();
   data.append('person', photo.blob, photo.name);
@@ -179,6 +196,7 @@ async function requestLive(photo, choice, custom) {
   }
   if (response.ok && response.headers.get('content-type')?.startsWith('image/')) return response.blob();
   const body = await response.json().catch(() => null);
+  if (response.status === 202 && body?.pollUrl) return followLiveJob(body.pollUrl);
   if (response.ok && body?.mode === 'mock') return null;
   throw new Error(body?.message || 'A live try-on could not be completed. Please try again.');
 }

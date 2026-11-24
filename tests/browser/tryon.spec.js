@@ -99,3 +99,31 @@ test('a live result stays on its product while catalog navigation is locked', as
   await denim.click();
   await expect(page.getByRole('heading', { name: 'Studio Denim Jacket' })).toBeVisible();
 });
+
+test('a slow live try-on resumes the same job through a temporary status error', async ({ page }) => {
+  const fixture = fileURLToPath(new URL('../../public/garments/tee.png', import.meta.url));
+  const pollUrl = '/api/tryon/status/test-token';
+  let starts = 0;
+  let polls = 0;
+  await page.route('**/api/status', (route) => route.fulfill({ json: { mode: 'live' } }));
+  await page.route('**/api/tryon', (route) => {
+    ++starts;
+    return route.fulfill({ status: 202, json: { id: 'slow-job', pollUrl } });
+  });
+  await page.route(`**${pollUrl}`, (route) => {
+    ++polls;
+    if (polls === 1) return route.fulfill({ status: 202, json: { id: 'slow-job' } });
+    if (polls === 2) return route.fulfill({ status: 503, json: { message: 'Temporary error' } });
+    return route.fulfill({ path: fixture, contentType: 'image/png' });
+  });
+  await page.goto('/');
+  await page.locator('#person-file').setInputFiles(fixture);
+  await page.getByRole('checkbox').check();
+  const generate = page.getByRole('button', { name: 'Generate try-on' });
+  await generate.click();
+  await expect(page.locator('#form-status')).toContainText('still working');
+  await expect(generate).toBeDisabled();
+  await expect(page.locator('#result-mode')).toHaveText('Clothsy AI result', { timeout: 15_000 });
+  await expect(generate).toBeEnabled();
+  expect({ starts, polls }).toEqual({ starts: 1, polls: 3 });
+});

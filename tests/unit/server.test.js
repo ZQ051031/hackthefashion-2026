@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { once } from 'node:events';
 import { test } from 'node:test';
 import express from 'express';
-import { AuthenticationError } from 'clothsy-ai';
+import { AuthenticationError, TryOnTimeoutError } from 'clothsy-ai';
 import { createApi } from '../../server/app.js';
 
 const png = await readFile(new URL('../../public/garments/tee.png', import.meta.url));
@@ -90,4 +90,47 @@ test('both garment sources upload bytes, create a consented job, poll it and rel
       person: { imageId: 'img_1' }, garment: { imageId: 'img_2' }, title, consent: true,
     }, 'job-1']);
   }
+});
+
+test('a timed-out job can be polled until its image is available without creating another job', async (t) => {
+  const calls = [];
+  const id = 'slow-job';
+  const resultUrl = 'https://result.example.test/slow.png';
+  let status = 'pending';
+  const vendor = {
+    images: { upload: async () => ({ id: 'img_fixture' }) },
+    tryons: {
+      async create() {
+        calls.push('create');
+        return { id };
+      },
+      async waitFor(jobId) {
+        calls.push(['wait', jobId]);
+        throw new TryOnTimeoutError('Still running', jobId);
+      },
+      async retrieve(jobId) {
+        calls.push(['retrieve', jobId]);
+        return { status, resultUrl: status === 'success' ? resultUrl : null };
+      },
+    },
+  };
+  const base = await host(t, createApi('configured-for-test', () => vendor));
+  const fetchActual = globalThis.fetch;
+  t.mock.method(globalThis, 'fetch', (input, options) => String(input) === resultUrl
+    ? Promise.resolve(new Response(png, { headers: { 'Content-Type': 'image/png' } }))
+    : fetchActual(input, options));
+
+  const start = await fetch(`${base}/api/tryon`, submission());
+  assert.equal(start.status, 202);
+  const job = await start.json();
+  assert.equal(job.id, id);
+  assert.equal((await fetch(`${base}/api/tryon/status/${id}`)).status, 404);
+  const pending = await fetch(base + job.pollUrl);
+  assert.equal(pending.status, 202);
+  assert.deepEqual(await pending.json(), { id });
+  status = 'success';
+  const result = await fetch(base + job.pollUrl);
+  assert.equal(result.status, 200);
+  assert.deepEqual(Buffer.from(await result.arrayBuffer()), png);
+  assert.deepEqual(calls, ['create', ['wait', id], ['retrieve', id], ['retrieve', id]]);
 });
