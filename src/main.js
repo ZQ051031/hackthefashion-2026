@@ -28,6 +28,7 @@ function productUrl(item, hash = '#main') {
 
 function showSizeOptions() {
   [...$('size-options').children].forEach((button) => button.setAttribute('aria-pressed', button.dataset.size === size));
+  $('studio-size').textContent = size ? `Selected size: ${size}` : 'Select a size if you’d like';
 }
 
 function resetSizeAdvice() {
@@ -77,11 +78,24 @@ function clearResult() {
 }
 
 function updateControls() {
-  const ready = mode && person && $('consent').checked && ($('garment-choice').value !== 'custom' || garment);
-  $('generate').disabled = !ready || preparing > 0 || busy;
+  const custom = $('garment-choice').value === 'custom';
+  const hint = !mode ? 'Checking preview mode…' : preparing ? 'Preparing your photo…' : !person ? 'Add a photo to get started.'
+    : custom && !garment ? 'Add a garment photo to continue.' : !$('consent').checked ? 'Confirm consent to generate your preview.' : '';
+  $('generate').disabled = Boolean(hint || busy);
+  $('ready-hint').textContent = busy ? '' : hint;
+  $('studio-fit').hidden = custom;
   $('sample').disabled = preparing > 0 || busy;
   $('sample').hidden = mode !== 'mock';
   for (const card of $('catalog').children) card.setAttribute('aria-disabled', busy && mode === 'live');
+}
+
+function showLoading(loading) {
+  $('preview').setAttribute('aria-busy', loading);
+  $('preview-loading').hidden = !loading;
+  $('placeholder').hidden = loading || Boolean(result);
+  $('generate-label').textContent = loading ? 'Generating preview…' : 'Generate try-on';
+  if (loading) $('result-mode').textContent = 'In progress';
+  else if (!result) $('result-mode').textContent = 'No result yet';
 }
 
 function changeProduct(item) {
@@ -101,33 +115,40 @@ function badge(node, label, type) {
   node.replaceChildren(dot, document.createTextNode(label));
 }
 
-function setMode(value, reason) {
+function setMode(value, reason, { offline = false } = {}) {
   mode = value;
   for (const id of ['mode-badge', 'studio-badge']) {
     badge($(id), value === 'live' ? 'Live: Clothsy API' : 'DEMO / MOCK', value);
   }
   $('mode-explanation').textContent = reason;
+  const note = $('demo-note');
+  note.hidden = value !== 'mock';
+  note.textContent = offline ? 'Clothsy offline · Simulated results' : 'Clothsy key unavailable · Simulated results';
   updateControls();
 }
 
 async function detectMode() {
-  if (__PAGES_DEMO__) return setMode('mock', 'GitHub Pages cannot run the Clothsy server. This preview is simulated; photos stay in your browser.');
+  if (__PAGES_DEMO__) return setMode('mock', 'The real Clothsy key isn’t available for this demo. This preview is simulated, and your photos stay in your browser.');
   try {
     const response = await fetch('/api/status', { signal: AbortSignal.timeout(3000) });
     if (!response.ok) throw new Error('Server unavailable');
     const status = await response.json();
-    if (status.mode === 'live') return setMode('live', 'Photos you submit are sent to Clothsy AI to create the preview.');
+    if (status.mode === 'live') return setMode('live', 'Photos you submit are sent to Clothsy to create the preview.');
     if (status.mode === 'mock') return setMode('mock', 'No Clothsy key is configured. This preview is simulated; photos stay in your browser.');
   } catch {
     // A standalone static build still works without a local server.
   }
-  setMode('mock', 'The Clothsy server is unavailable. This preview is simulated; photos stay in your browser.');
+  setMode('mock', 'The Clothsy server is unavailable. This preview is simulated; photos stay in your browser.', { offline: true });
 }
 
 function setPerson(next) {
   if (person && !person.sample) URL.revokeObjectURL(person.src);
   person = next;
   $('person-name').textContent = person?.name || 'Choose a photo';
+  const thumb = $('person-thumb');
+  thumb.hidden = !person;
+  if (person) thumb.src = person.src;
+  else thumb.removeAttribute('src');
   $('consent').checked = false;
 }
 
@@ -167,6 +188,7 @@ function listenForUpload(input, useFile) {
 
 async function followLiveJob(pollUrl) {
   $('form-status').textContent = 'Clothsy is still working on your try-on. Keep this page open while we check its status…';
+  $('loading-copy').textContent = 'Still working. No need to start again.';
   for (;;) {
     await new Promise((resolve) => setTimeout(resolve, 3000));
     let response;
@@ -214,13 +236,13 @@ async function renderResult(blob, before, isMock, item, version) {
     $('after-image').src = url;
     $('before-image').src = before.src;
     $('comparison').style.setProperty('--ratio', `${image.width} / ${image.height}`);
-    $('result-mode').textContent = isMock ? 'DEMO / MOCK' : 'Clothsy AI result';
+    $('result-mode').textContent = isMock ? 'DEMO / MOCK' : 'Clothsy result';
     $('placeholder').hidden = true;
     $('comparison').hidden = false;
     $('preview-actions').hidden = false;
     $('compare').value = 50;
     $('comparison').style.setProperty('--split', '50%');
-    $('form-status').textContent = isMock ? 'Mock preview ready. This is a simple overlay, not an AI try-on.' : 'Your Clothsy try-on is ready.';
+    $('form-status').textContent = isMock ? 'Simulated preview ready. The garment is a simple overlay.' : 'Your Clothsy try-on is ready.';
   } finally {
     if (!keepUrl) URL.revokeObjectURL(url);
   }
@@ -262,6 +284,7 @@ $('size-options').addEventListener('click', (event) => {
   showSizeOptions();
 });
 $('open-guide').addEventListener('click', () => $('size-guide').showModal());
+$('studio-guide').addEventListener('click', () => $('size-guide').showModal());
 $('size-form').addEventListener('input', resetSizeAdvice);
 $('size-form').addEventListener('submit', (event) => {
   event.preventDefault();
@@ -312,6 +335,8 @@ $('tryon-form').addEventListener('submit', async (event) => {
   busy = true;
   $('tryon-fields').disabled = true;
   updateControls();
+  $('loading-copy').textContent = mode === 'live' ? 'This can take a few minutes.' : 'Putting your simulated look together…';
+  showLoading(true);
   $('form-status').textContent = mode === 'live' ? 'Clothsy is creating your try-on. This can take a few minutes…' : 'Creating your mock preview…';
   const before = person;
   const item = $('garment-choice').value === 'custom' ? null : product;
@@ -331,7 +356,11 @@ $('tryon-form').addEventListener('submit', async (event) => {
   } finally {
     busy = false;
     $('tryon-fields').disabled = false;
+    showLoading(false);
     updateControls();
+    if (result && matchMedia('(max-width: 700px)').matches) {
+      $('preview').scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
   }
 });
 $('compare').addEventListener('input', () => $('comparison').style.setProperty('--split', `${$('compare').value}%`));

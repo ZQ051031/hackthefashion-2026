@@ -2,7 +2,7 @@
 
 **HackTheFashion Global ’26 · Try-On Commerce**
 
-[GitHub Pages demo URL](https://zq051031.github.io/hackthefashion-2026/) · No account or key needed once Pages is enabled
+[Open the GitHub Pages demo](https://zq051031.github.io/hackthefashion-2026/) · [Download the demo video](docs/demo/mirrorroom-demo.mp4) · No account or key needed
 
 Mirrorroom puts the fitting room on the product page. Shoppers can see a garment on their own photo and check its size chart before deciding what to buy. The visualization helps with styling; the measurements help with sizing. Neither is a guarantee of fit. The catalog and prices are illustrative; there is no checkout or payment.
 
@@ -12,7 +12,7 @@ Mirrorroom puts the fitting room on the product page. Shoppers can see a garment
 
 1. **Upload your photo.** Use a front-facing JPEG or PNG up to 4 MB, or use the illustrated model in demo mode.
 2. **Choose a garment.** Pick a catalog item with its own sizes and prices, or upload a front-facing garment photo.
-3. **See it on you.** Confirm consent, generate a result, drag the before/after slider, and save or share the PNG. If your browser cannot share files directly, download the image and attach it yourself.
+3. **See it on you.** Confirm consent and generate a result. The fitting room shows when the preview is still being prepared and brings the finished comparison into view on mobile. Drag the before/after slider, then save or share the PNG. If your browser cannot share files directly, download the image and attach it yourself.
 
 **Find my size** recommends the smallest available size that leaves enough room for the entered chest measurement and preferred fit. It explains the recommendation and shows garment measurements. The size guide is for catalog items only and does not infer measurements from a photo.
 
